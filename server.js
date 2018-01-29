@@ -36,7 +36,7 @@ app.post('/api/getProjectVariables', (req, res) => {
 
 function getProjectVariables(names){
   projectVarObj = {};
-  names.map(name => {
+  names.forEach(name => {
     name = name.charAt(0).toLowerCase() + name.slice(1);
     projectVarObj[name] = fileObj[name];
   });
