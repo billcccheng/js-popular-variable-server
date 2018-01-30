@@ -29,24 +29,36 @@ app.get('/api/getProjectNames', (req, res) => {
 
 app.post('/api/getProjectVariables', (req, res) => {
   res.header('Content-Type', 'application/json');
-  let selectedProjects = req.body.selectedProjects;
-  let variablesObj = getProjectVariables(selectedProjects);
+  const selectedProjects = req.body.selectedProjects;
+  const variablesObj = getProjectVariables(selectedProjects);
   res.json(variablesObj);
 });
 
-function getProjectVariables(names){
-  projectVarObj = {};
-  names.forEach(name => {
-    name = name.charAt(0).toLowerCase() + name.slice(1);
-    projectVarObj[name] = fileObj[name];
+app.get('/api/getSingleProjectVariables/:project', (req, res) => {
+  res.header('Content-Type', 'application/json');
+  let selectedProject = req.params.project;
+  selectedProject = selectedProject.charAt(0).toLowerCase() + selectedProject.slice(1);
+  const selectedProjectVarObj = getProjectVariables([selectedProject]);
+  const selectedProjectVar = selectedProjectVarObj[selectedProject];
+  const returnObj = Object.keys(selectedProjectVar).reduce((res, varName) => {
+    let magnify = 20000/Object.keys(selectedProjectVar).length;
+    return res.concat({'text': varName, 'value': selectedProjectVar[varName]*magnify});
+  },[]);
+  returnObj.sort((a,b) => {
+    return b.value - a.value;
   });
-  return projectVarObj;
+  res.json(returnObj.slice(0, 200));
+});
+
+function getProjectVariables(names){
+  return names.reduce((res, name) => {
+    name = name.charAt(0).toLowerCase() + name.slice(1);
+    res[name] = fileObj[name];
+    return res;
+  }, {});
 }
 
 function getProjectName(){
-  //const file = fs.readFileSync("./assets/variable-dict.txt");
-  //console.log(JSON.parse(file));
-  //fileObj = JSON.parse(file);
   const projectNames = Object.keys(fileObj).map(name=>{
     return name.charAt(0).toUpperCase() + name.slice(1);
   });
