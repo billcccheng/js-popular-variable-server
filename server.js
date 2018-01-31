@@ -47,7 +47,7 @@ app.get('/api/getSingleProjectVariables/:project', (req, res) => {
   returnObj.sort((a,b) => {
     return b.value - a.value;
   });
-  res.json(returnObj.slice(0, 200));
+  res.json(returnObj);
 });
 
 function getProjectVariables(names){
