@@ -3,14 +3,18 @@ const app = express();
 const fs = require('fs');
 const bodyParser = require('body-parser');
 
-const allowCrossDomain = function(req, res, next){
+const allowCrossDomain = (req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET,POST');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
-  next();
+  if ('OPTIONS' == req.method) {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
 }
 
-const readFile = function(req, res, next){
+const readFile = (req, res, next) => {
   const file = fs.readFileSync("./assets/variable-dict.txt");
   fileObj = JSON.parse(file);
   next();
@@ -50,7 +54,7 @@ app.get('/api/getSingleProjectVariables/:project', (req, res) => {
   res.json(returnObj);
 });
 
-function getProjectVariables(names){
+function getProjectVariables(names) {
   return names.reduce((res, name) => {
     name = name.charAt(0).toLowerCase() + name.slice(1);
     res[name] = fileObj[name];
@@ -58,8 +62,8 @@ function getProjectVariables(names){
   }, {});
 }
 
-function getProjectName(){
-  const projectNames = Object.keys(fileObj).map(name=>{
+function getProjectName() {
+  const projectNames = Object.keys(fileObj).map(name => {
     return name.charAt(0).toUpperCase() + name.slice(1);
   });
   return projectNames;
