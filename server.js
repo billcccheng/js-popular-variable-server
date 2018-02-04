@@ -27,7 +27,17 @@ app.use(bodyParser.urlencoded({extended: true})); // support encoded bodies
 app.use(readFile);
 
 app.get('/api/getProjectNames', (req, res) => {
-  projectNames = getProjectName();
+  const projectNames = getProjectName();
+  res.send(projectNames);
+});
+
+app.get('/api/fetchWordCloudProjectNames', (req, res) => {
+  const projectNames = getProjectName().reduce((array, itm) => {
+    if(itm === 'Node')
+      return array;
+    return array.concat({'value': itm, 'label': itm});
+  }, [])
+
   res.send(projectNames);
 });
 
