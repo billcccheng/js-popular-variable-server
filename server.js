@@ -15,7 +15,7 @@ const allowCrossDomain = (req, res, next) => {
 }
 
 const readFile = (req, res, next) => {
-  const file = fs.readFileSync("./assets/variable-dict.txt");
+  const file = fs.readFileSync("./variable_data/variable-dict-update");
   fileObj = JSON.parse(file);
   next();
 }
@@ -55,8 +55,11 @@ app.get('/api/getSingleProjectVariables/:project', (req, res) => {
   const selectedProjectVarObj = getProjectVariables([selectedProject]);
   const selectedProjectVar = selectedProjectVarObj[selectedProject];
   const returnObj = Object.keys(selectedProjectVar).reduce((res, varName) => {
-    let magnify = 20000/Object.keys(selectedProjectVar).length;
-    return res.concat({'text': varName, 'value': selectedProjectVar[varName]*magnify});
+    return res.concat({
+      'value': varName,
+      'count': selectedProjectVar[varName].counter,
+      'url': selectedProjectVar[varName].url
+    });
   },[]);
   returnObj.sort((a,b) => {
     return b.value - a.value;
@@ -64,19 +67,19 @@ app.get('/api/getSingleProjectVariables/:project', (req, res) => {
   res.json(returnObj);
 });
 
+function getProjectName() {
+  const projectNames = Object.keys(fileObj).map(name => {
+    return name.charAt(0).toUpperCase() + name.slice(1);
+  });
+  return projectNames;
+}
+
 function getProjectVariables(names) {
   return names.reduce((res, name) => {
     name = name.charAt(0).toLowerCase() + name.slice(1);
     res[name] = fileObj[name];
     return res;
   }, {});
-}
-
-function getProjectName() {
-  const projectNames = Object.keys(fileObj).map(name => {
-    return name.charAt(0).toUpperCase() + name.slice(1);
-  });
-  return projectNames;
 }
 
 const server = app.listen(process.env.PORT || 5000, () => {
